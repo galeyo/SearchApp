@@ -12,5 +12,6 @@ namespace Domain
         public string Image { get; set; }
         public virtual ICollection<AircraftCategory> AircraftCategory { get; set; }
         public virtual ICollection<AircraftType> AircraftTypes { get; set; }
+        public string Country { get; set; }
     }
 }

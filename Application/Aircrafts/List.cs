@@ -1,12 +1,10 @@
 ﻿using Application.Aircrafts.Dto;
-using Domain;
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,47 +12,41 @@ namespace Application.Aircrafts
 {
     public class List
     {
-        public class Query : IRequest<ICollection<AircraftDto>>
+        public class Query : IRequest<AircraftEnvelope>
         {
+            public Query(int? limit, int? offset)
+            {
+                Limit = limit;
+                Offset = offset;
+            }
+
+            public int? Limit { get; set; }
+            public int? Offset { get; set; }
 
         }
-        public class Handler : IRequestHandler<Query, ICollection<AircraftDto>>
+        public class Handler : IRequestHandler<Query, AircraftEnvelope>
         {
             private readonly DataContext context;
+            private readonly IMapper mapper;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IMapper mapper)
             {
                 this.context = context;
+                this.mapper = mapper;
             }
-            public async Task<ICollection<AircraftDto>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<AircraftEnvelope> Handle(Query request, CancellationToken cancellationToken)
             {
-                var aircrafts = await context.Aircraft.Take(80).ToListAsync();
-                var aircraftsDto = new List<AircraftDto>();
-                foreach(var aircraft in aircrafts)
-                {
-                    var aircraftCategory = aircraft.AircraftCategory.ToList();
-                    var aircraftTypes = aircraft.AircraftTypes.ToList();
-                    var categories = new List<string>();
-                    var types = new List<string>();
-                    foreach (var category in aircraftCategory)
-                    {
-                        categories.Add(category.Category.CategoryName);
-                    }
-                    foreach (var type in aircraftTypes)
-                    {
-                        types.Add(type.Type.TypeName);
-                    }
-                    aircraftsDto.Add(new AircraftDto
-                    {
-                        AircraftName = aircraft.AircraftName,
-                        Description = aircraft.Description,
-                        Image = aircraft.Image,
-                        Categories = categories,
-                        Types = types
-                    });
-                }
+                var query = context.Aircraft.AsQueryable();
+                var aircrafts = await query
+                    .Skip(request.Offset ?? 0)
+                    .Take(request.Limit ?? 9)
+                    .ToListAsync();
 
-                return aircraftsDto;
+                return new AircraftEnvelope
+                {
+                    Aircrafts = mapper.Map<List<AircraftDto>>(aircrafts),
+                    Count = query.Count()
+                };
             }
         }
     }
