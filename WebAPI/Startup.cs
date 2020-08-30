@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Persistence;
+using SearchApp.Extensions;
 using SearchApp.Middleware;
 
 namespace SearchApp
@@ -42,6 +43,7 @@ namespace SearchApp
             });
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(List.Handler).Assembly);
+            services.AddElasticsearch(Configuration);
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
