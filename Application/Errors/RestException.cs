@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace SearchApp.Errors
+namespace Application.Errors
 {
     public class RestException : Exception
     {

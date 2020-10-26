@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using SearchApp.Errors;
+using Application.Errors;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;

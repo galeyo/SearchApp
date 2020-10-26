@@ -1,14 +1,15 @@
 ﻿using Domain;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Persistence
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<AppUser>
     {
         public DbSet<Aircraft> Aircraft { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<AircraftCategory> AircraftCategory { get; set; }
-        public DbSet<Domain.Type> Type { get; set; }
+        public DbSet<Type> Type { get; set; }
         public DbSet<AircraftType> AircraftType { get; set; }
 
         public DataContext() : base() { }
