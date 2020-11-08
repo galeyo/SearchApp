@@ -14,7 +14,8 @@ namespace SearchApp.Extensions
             var defaultIndex = configuration["Elasticsearch:DefaultIndex"];
 
             var settings = new ConnectionSettings(new Uri(url))
-                .DefaultIndex(defaultIndex);
+                .DefaultIndex(defaultIndex)
+                .DisableAutomaticProxyDetection(true);
             AddDefaultMappings(settings);
 
             var client = new ElasticClient(settings);

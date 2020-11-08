@@ -60,9 +60,11 @@ namespace Application.User
                         DisplayName = user.DisplayName,
                         Token = _jwtGenerator.CreateToken(user),
                         UserName = user.UserName,
-                        Image = 
+                        Image = user.Image
                     };
                 }
+
+                throw new RestException(HttpStatusCode.Unauthorized);
             }
         }
     }
