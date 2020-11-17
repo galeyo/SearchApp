@@ -29,7 +29,7 @@
       "commandName": "Executable",
       "executablePath": "dotnet",
       "commandLineArgs": "watch run",
-      "workingDirectory": "C:\\Users\\gokhapki\\MYWORK\\ASP.NET\\SearchApp\\WebAPI",
+      "workingDirectory": "$(ProjectDir)",
       "environmentVariables": {
         "ASPNETCORE_ENIVORNMENT": "Development"
       },

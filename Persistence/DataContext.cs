@@ -1,6 +1,7 @@
 ﻿using Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Persistence
 {
@@ -11,7 +12,7 @@ namespace Persistence
         public DbSet<AircraftCategory> AircraftCategory { get; set; }
         public DbSet<Type> Type { get; set; }
         public DbSet<AircraftType> AircraftType { get; set; }
-
+        public DbSet<Comment> Comments { get; set; }
         public DataContext() : base() { }
 
         public DataContext(DbContextOptions options) : base(options) { }
@@ -19,7 +20,6 @@ namespace Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
 
             // Many-to-many Aircraft <-> Category
             modelBuilder.Entity<AircraftCategory>()

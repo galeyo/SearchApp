@@ -59,5 +59,6 @@ namespace SearchApp
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
     }
 }
