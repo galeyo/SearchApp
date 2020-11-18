@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Application.Comments;
+using Domain;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,5 +20,6 @@ namespace Application.Aircrafts.Dto
         public ICollection<string> Types { get; set; }
         [Required]
         public string Country { get; set; }
+        public ICollection<CommentDto> Comments { get; set; }
     }
 }

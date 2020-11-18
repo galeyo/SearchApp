@@ -17,7 +17,8 @@ namespace Application.Aircrafts
                 .ForMember(d => d.Types, o => o.MapFrom(s => s.AircraftTypes.Select(el => el.Type.TypeName)))
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Image))
                 .ForMember(d => d.YearInService, o => o.MapFrom(s => s.YearInService))
-                .ForMember(d => d.Country, o => o.MapFrom(s => s.Country));
+                .ForMember(d => d.Country, o => o.MapFrom(s => s.Country))
+                .ForMember(d => d.Comments, o => o.MapFrom(s => s.Comments));
         }
     }
 }

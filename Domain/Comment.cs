@@ -7,6 +7,7 @@ namespace Domain
         public Guid Id { get; set; }
         public string Body { get; set; }
         public virtual AppUser Author { get; set; }
+        public int AircraftId { get; set; }
         public virtual Aircraft Aircraft { get; set; }
         public DateTime CreatedAt { get; set; }
 

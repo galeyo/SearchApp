@@ -62,7 +62,7 @@ namespace Application.User
                     DisplayName = request.DisplayName,
                     UserName = request.UserName,
                     Email = request.Email,
-                    Image = "/api/avatars/default.jpg"
+                    Image = "avatars/default.jpg"
                 };
                 var result = await _userManager.CreateAsync(user, request.Password);
 

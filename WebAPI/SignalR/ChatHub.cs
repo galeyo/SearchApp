@@ -24,7 +24,7 @@ namespace API.SignalR
 
             var comment = await _mediator.Send(command);
 
-            await Clients.Group(command.ActivityId.ToString()).SendAsync("ReceiveComment", comment);
+            await Clients.Group(command.AircraftId.ToString()).SendAsync("ReceiveComment", comment);
         }
 
         private string GetUsername()
@@ -33,13 +33,13 @@ namespace API.SignalR
                 .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
         }
 
-        public async Task AddToGroup(string groupName)
+        public async Task AddToGroup(int groupName)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName.ToString());
 
             var username = GetUsername();
 
-            await Clients.Group(groupName).SendAsync("Send", $"{username} has joined the group");
+            await Clients.Group(groupName.ToString()).SendAsync("Send", $"{username} has joined the group");
         }
 
         public async Task RemoveFromGroup(string groupName)

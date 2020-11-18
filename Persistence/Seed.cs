@@ -20,19 +20,22 @@ namespace Persistence
                     {
                         DisplayName = "Bob",
                         UserName = "bob",
-                        Email = "bob@test.com"
+                        Email = "bob@test.com",
+                        Image = "avatars/bob.jpg"
                     },
                     new AppUser
                     {
                         DisplayName = "Tom",
                         UserName = "tom",
-                        Email = "tom@test.com"
+                        Email = "tom@test.com",
+                        Image = "avatars/tom.jpg"
                     },
                     new AppUser
                     {
                         DisplayName = "Alice",
                         UserName = "alice",
-                        Email = "alice@test.com"
+                        Email = "alice@test.com",
+                        Image = "avatars/alice.jpg"
                     }
                 };
                 foreach (var user in users)
@@ -51,6 +54,7 @@ namespace Persistence
                 {
                     context.Aircraft.Add(new Domain.Aircraft
                     {
+                        Id = aircraft.Id,
                         AircraftName = aircraft.AircraftName,
                         Description = aircraft.Description,
                         YearInService = aircraft.YearInService,
@@ -69,6 +73,7 @@ namespace Persistence
                 {
                     context.Category.Add(new Domain.Category
                     {
+                        Id = category.Id,
                         CategoryName = category.CategoryName
                     });
 
@@ -84,6 +89,7 @@ namespace Persistence
                 {
                     context.Type.Add(new Domain.Type
                     {
+                        Id = type.Id,
                         TypeName = type.TypeName
                     });
                 }

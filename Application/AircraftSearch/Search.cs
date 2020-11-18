@@ -24,18 +24,5 @@ namespace Application.AircraftSearch
             public string QueryString { get; }
         }
 
-        public class Handler : IRequestHandler<Query, AircraftEnvelope>
-        {
-            private readonly ElasticClient client;
-
-            public Handler(ElasticClient client)
-            {
-                this.client = client;
-            }
-            public async Task<AircraftEnvelope> Handle(Query request, CancellationToken cancellationToken)
-            {
-                return new AircraftEnvelope();
-            }
-        }
     }
 }

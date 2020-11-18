@@ -22,9 +22,7 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Aircraft", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("AircraftName")
                         .HasColumnType("nvarchar(max)");
@@ -150,9 +148,7 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Category", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("CategoryName")
                         .HasColumnType("nvarchar(max)");
@@ -168,7 +164,7 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("AircraftId")
+                    b.Property<int>("AircraftId")
                         .HasColumnType("int");
 
                     b.Property<string>("AuthorId")
@@ -192,9 +188,7 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Type", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("TypeName")
                         .HasColumnType("nvarchar(max)");
@@ -369,7 +363,9 @@ namespace Persistence.Migrations
                 {
                     b.HasOne("Domain.Aircraft", "Aircraft")
                         .WithMany("Comments")
-                        .HasForeignKey("AircraftId");
+                        .HasForeignKey("AircraftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Domain.AppUser", "Author")
                         .WithMany()
