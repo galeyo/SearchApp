@@ -13,6 +13,7 @@ namespace Persistence
         public DbSet<Type> Type { get; set; }
         public DbSet<AircraftType> AircraftType { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Image> Images { get; set; }
         public DataContext() : base() { }
 
         public DataContext(DbContextOptions options) : base(options) { }

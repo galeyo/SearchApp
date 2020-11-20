@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\api\avatars\" />
+    <Folder Include="wwwroot\api\uploads\" />
   </ItemGroup>
 
 

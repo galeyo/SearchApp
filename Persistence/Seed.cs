@@ -58,7 +58,6 @@ namespace Persistence
                         AircraftName = aircraft.AircraftName,
                         Description = aircraft.Description,
                         YearInService = aircraft.YearInService,
-                        Image = aircraft.Image,
                         Country = aircraft.Country
                     });
                 }
@@ -94,6 +93,20 @@ namespace Persistence
                     });
                 }
                 await context.SaveChangesAsync();
+            }
+            if (!context.Images.Any())
+            {
+                var engine = new FileHelperEngine<Mapping.Image>();
+                var images = engine.ReadFile("Images.csv");
+
+                foreach (var image in images)
+                {
+                    context.Images.Add(new Domain.Image
+                    {
+                        AircraftId = image.AircraftId,
+                        ImageUrl = image.ImageUrl
+                    });
+                }
             }
             if (!context.AircraftCategory.Any())
             {

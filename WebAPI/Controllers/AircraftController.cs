@@ -23,5 +23,11 @@ namespace SearchApp.Controllers
             return await Mediator.Send(new Details.Query { Id = id }, ct);
         }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult<AircraftDto>> Add([FromForm] Add.Command command)
+        {
+            return await Mediator.Send(command);
+        }
     }
 }

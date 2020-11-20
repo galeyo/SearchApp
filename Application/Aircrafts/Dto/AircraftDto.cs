@@ -15,7 +15,7 @@ namespace Application.Aircrafts.Dto
         public Int16 YearInService { get; set; }
         [Required]
         public string Description { get; set; }
-        public string Image { get; set; }
+        public ICollection<ImageDto> Images { get; set; }
         public ICollection<string> Categories { get; set; }
         public ICollection<string> Types { get; set; }
         [Required]
