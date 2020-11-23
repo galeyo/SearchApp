@@ -9,5 +9,6 @@ namespace Domain
     {
         public string DisplayName { get; set; }
         public string Image { get; set; }
+        public virtual ICollection<Subscribe> Subscribes { get; set; }
     }
 }

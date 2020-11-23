@@ -14,6 +14,8 @@ namespace Persistence
         public DbSet<AircraftType> AircraftType { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Subscribe> Subscribes { get; set; }
         public DataContext() : base() { }
 
         public DataContext(DbContextOptions options) : base(options) { }
@@ -49,6 +51,20 @@ namespace Persistence
                 .HasOne<Domain.Type>(at => at.Type)
                 .WithMany(t => t.AircraftTypes)
                 .HasForeignKey(at => at.TypeId);
+
+            // Many-to-many Aircraft <-> AppUser
+            modelBuilder.Entity<Subscribe>()
+                .HasKey(s => new { s.AircraftId, s.UserId });
+
+            modelBuilder.Entity<Subscribe>()
+                .HasOne<Aircraft>(s => s.Aircraft)
+                .WithMany(a => a.Subscribes)
+                .HasForeignKey(s => s.AircraftId);
+
+            modelBuilder.Entity<Subscribe>()
+                .HasOne<AppUser>(s => s.User)
+                .WithMany(u => u.Subscribes)
+                .HasForeignKey(s => s.UserId);
         }
     }
 }

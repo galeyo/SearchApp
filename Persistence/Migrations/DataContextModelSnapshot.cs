@@ -33,9 +33,6 @@ namespace Persistence.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<short>("YearInService")
                         .HasColumnType("smallint");
 
@@ -113,6 +110,9 @@ namespace Persistence.Migrations
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
+                    b.Property<Guid?>("NotificationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
@@ -141,6 +141,8 @@ namespace Persistence.Migrations
                         .IsUnique()
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("NotificationId");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -203,6 +205,41 @@ namespace Persistence.Migrations
                     b.HasIndex("AircraftId");
 
                     b.ToTable("Images");
+                });
+
+            modelBuilder.Entity("Domain.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("Domain.Subscribe", b =>
+                {
+                    b.Property<int>("AircraftId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("AircraftId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Subscribes");
                 });
 
             modelBuilder.Entity("Domain.Type", b =>
@@ -379,6 +416,13 @@ namespace Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.AppUser", b =>
+                {
+                    b.HasOne("Domain.Notification", null)
+                        .WithMany("Users")
+                        .HasForeignKey("NotificationId");
+                });
+
             modelBuilder.Entity("Domain.Comment", b =>
                 {
                     b.HasOne("Domain.Aircraft", "Aircraft")
@@ -395,8 +439,23 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Image", b =>
                 {
                     b.HasOne("Domain.Aircraft", "Aircraft")
-                        .WithMany()
+                        .WithMany("Images")
                         .HasForeignKey("AircraftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Subscribe", b =>
+                {
+                    b.HasOne("Domain.Aircraft", "Aircraft")
+                        .WithMany("Subscribes")
+                        .HasForeignKey("AircraftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.AppUser", "User")
+                        .WithMany("Subscribes")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

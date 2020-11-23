@@ -26,6 +26,8 @@ using FluentValidation.AspNetCore;
 using Application.User;
 using API.SignalR;
 using System.Threading.Tasks;
+using SearchApp.SignalR;
+using Common.Notification;
 
 namespace SearchApp
 {
@@ -111,6 +113,8 @@ namespace SearchApp
                 });
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddSingleton<IConnectionManager, ConnectionManager>();
+            services.AddSingleton<IHubNotificationHelper, HubNotificationsHelper>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Search API", Version = "v1" });
@@ -148,6 +152,7 @@ namespace SearchApp
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/chat");
+                endpoints.MapHub<NotificationHub>("/notifications");
             });
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Application.Aircrafts.Dto;
+using Application.Errors;
 using AutoMapper;
 using Common.Interfaces;
 using Domain;
@@ -12,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -47,19 +49,23 @@ namespace Application.Aircrafts
         public class Handler : IRequestHandler<Command, AircraftDto>
         {
             private readonly DataContext _context;
-            private readonly IUserAccessor _userAccessor;
             private readonly IWebHostEnvironment _hostEnvironment;
             private readonly IMapper _mapper;
+            private readonly Nest.ElasticClient _elasticClient;
+            private readonly IUserAccessor _userAccessor;
 
-            public Handler(DataContext context, IUserAccessor userAccessor, IWebHostEnvironment hostEnvironment, IMapper mapper)
+            public Handler(DataContext context, IWebHostEnvironment hostEnvironment, IMapper mapper, Nest.ElasticClient elasticClient, IUserAccessor userAccessor)
             {
                 _context = context;
-                _userAccessor = userAccessor;
                 _hostEnvironment = hostEnvironment;
                 _mapper = mapper;
+                _elasticClient = elasticClient;
+                _userAccessor = userAccessor;
             }
             public async Task<AircraftDto> Handle(Command request, CancellationToken cancellationToken)
             {
+                if (await _context.Aircraft.Where(x => x.AircraftName == request.AircraftName).AnyAsync())
+                    throw new RestException(HttpStatusCode.BadRequest, new { AircraftName = "Aircraft name already exist" });
                 string uploads = Path.Combine(_hostEnvironment.WebRootPath, "api", "uploads");
                 string filePath = Path.Combine(uploads, request.File.FileName);
                 using (Stream fileStream = new FileStream(filePath, FileMode.Create))
@@ -118,7 +124,7 @@ namespace Application.Aircrafts
                     else
                     {
                         var existingType = await _context.Type.Where(t => t.TypeName == type).FirstOrDefaultAsync();
-                        var existingTypeId = existingType.Id;   
+                        var existingTypeId = existingType.Id;
                         await _context.AircraftType.AddAsync(new AircraftType
                         {
                             AircraftId = aircraftId,
@@ -142,15 +148,34 @@ namespace Application.Aircrafts
                 };
                 await _context.Aircraft.AddAsync(aircraft);
 
+                await CreateNotification(_userAccessor.GetCurrentUsername(), aircraft.AircraftName);
                 var success = await _context.SaveChangesAsync() > 0;
 
                 if (success)
                 {
                     var retAircraft = await _context.Aircraft.FindAsync(new object[] { aircraftId }, cancellationToken);
-                    return _mapper.Map<Aircraft, AircraftDto>(retAircraft);
+                    var aircraftDto = _mapper.Map<Aircraft, AircraftDto>(retAircraft);
+                    var addDocInIndexRes = await _elasticClient.IndexDocumentAsync(aircraftDto);
+                    if (addDocInIndexRes.OriginalException != null) throw addDocInIndexRes.OriginalException;
+                    return aircraftDto;
                 }
 
                 throw new Exception("Problem saving changes");
+            }
+
+            // Send all users notification
+            private async Task CreateNotification(string username, string aircraftName)
+            {
+                var allUsers = await _context.Users.ToListAsync();
+                foreach (var user in allUsers)
+                {
+                    await _context.Notifications.AddAsync(new Notification
+                    {
+                        UserId = user.Id,
+                        IsRead = false,
+                        Body = $"{username} added new aircraft {aircraftName}"
+                    });
+                }
             }
         }
     }

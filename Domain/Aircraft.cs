@@ -18,5 +18,6 @@ namespace Domain
         public virtual ICollection<AircraftType> AircraftTypes { get; set; }
         public string Country { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
+        public virtual ICollection<Subscribe> Subscribes { get; set; }
     }
 }
