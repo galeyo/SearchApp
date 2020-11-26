@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Application.Notifications
+namespace Common.Notifications
 {
     public class NotificationDto
     {

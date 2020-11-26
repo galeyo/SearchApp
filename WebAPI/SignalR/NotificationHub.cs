@@ -1,4 +1,4 @@
-﻿using Application.Notifications;
+﻿using Common.Notifications;
 using Common.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
@@ -31,12 +31,6 @@ namespace SearchApp.SignalR
             _manager.AddConnection(username, Context.ConnectionId);
 
             return Context.ConnectionId;
-        }
-
-        public async Task SendNotifications(List<NotificationDto> notifications)
-        {
-
-
         }
     }
 }

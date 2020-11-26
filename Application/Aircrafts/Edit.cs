@@ -50,14 +50,16 @@ namespace Application.Aircrafts
             private readonly Nest.ElasticClient _elasticClient;
             private readonly IConfiguration _configuration;
             private readonly IUserAccessor _userAccessor;
+            private readonly IHubNotificationHelper _hubNotification;
 
-            public Handler(DataContext context, IMapper mapper, Nest.ElasticClient elasticClient, IConfiguration configuration, IUserAccessor userAccessor)
+            public Handler(DataContext context, IMapper mapper, Nest.ElasticClient elasticClient, IConfiguration configuration, IUserAccessor userAccessor, IHubNotificationHelper hubNotification)
             {
                 _context = context;
                 _mapper = mapper;
                 _elasticClient = elasticClient;
                 _configuration = configuration;
                 _userAccessor = userAccessor;
+                _hubNotification = hubNotification;
             }
             public async Task<AircraftDto> Handle(Command request, CancellationToken cancellationToken)
             {
@@ -185,15 +187,21 @@ namespace Application.Aircrafts
                 var subscribers = await _context.Users
                     .Where(x => x.Subscribes.Any(s => s.AircraftId == aircraft.Id))
                     .ToListAsync();
-
+                var body = $"{username} has changed {aircraft.AircraftName}";
                 foreach (var subscriber in subscribers)
                 {
                     await _context.Notifications.AddAsync(new Domain.Notification
                     {
                         UserId = subscriber.Id,
                         IsRead = false,
-                        Body = $"{username} has changed {aircraft.AircraftName}"
+                        Body = body
                     });
+                }
+                var onlineUsers = _hubNotification.GetOnlineUsers();
+                var usersToSendNotification = onlineUsers.Where(o => subscribers.Any(x => x.UserName == o));
+                foreach (var users in usersToSendNotification)
+                {
+                    //await _hubNotification.SendNotificationParallel(users, body);
                 }
             }
         }

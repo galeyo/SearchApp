@@ -1,4 +1,4 @@
-﻿using Application.Notifications;
+﻿using Common.Notifications;
 using Common.Interfaces;
 using Domain;
 using MediatR;
@@ -45,13 +45,20 @@ namespace Application.User
                         IsRead = notification.IsRead
                     });
                 }
+                var subscribes = await _context.Subscribes.Where(x => x.UserId == user.Id).ToListAsync();
+                var subscribesDto = new List<int>();
+                foreach (var subscribe in subscribes)
+                {
+                    subscribesDto.Add(subscribe.AircraftId);
+                }
                 return new UserDto
                 {
                     DisplayName = user.DisplayName,
                     UserName = user.UserName,
                     Token = _jwtGenerator.CreateToken(user),
                     Image = user.Image,
-                    Notifications = notificationsDto
+                    Notifications = notificationsDto,
+                    Subscribes = subscribesDto
                 };
             }
         }

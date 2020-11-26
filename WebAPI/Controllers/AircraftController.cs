@@ -30,7 +30,7 @@ namespace SearchApp.Controllers
             return await Mediator.Send(new Subscribe.Command { AircraftId = id });
         }
 
-        [HttpPost("{id}/unsubscribe")]
+        [HttpDelete("{id}/subscribe")]
         [Authorize]
         public async Task<ActionResult<Unit>> Unsubscribe(int id)
         {

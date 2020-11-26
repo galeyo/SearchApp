@@ -1,4 +1,4 @@
-﻿using Application.Notifications;
+﻿using Common.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,5 +12,6 @@ namespace Application.User
         public string UserName { get; set; }
         public string Image { get; set; }
         public ICollection<NotificationDto> Notifications { get; set; }
+        public ICollection<int> Subscribes { get; set; }
     }
 }

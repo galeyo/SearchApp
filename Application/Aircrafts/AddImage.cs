@@ -1,6 +1,7 @@
 ﻿using Application.Aircrafts.Dto;
 using Application.Errors;
 using AutoMapper;
+using Common.Interfaces;
 using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
@@ -34,14 +35,16 @@ namespace Application.Aircrafts
             private readonly IMapper _mapper;
             private readonly Nest.ElasticClient _elasticClient;
             private readonly IConfiguration _configuration;
+            private readonly IHubNotificationHelper _hubNotification;
 
-            public Handler(DataContext context, IWebHostEnvironment hostEnvironment, IMapper mapper, Nest.ElasticClient elasticClient, IConfiguration configuration)
+            public Handler(DataContext context, IWebHostEnvironment hostEnvironment, IMapper mapper, Nest.ElasticClient elasticClient, IConfiguration configuration, IHubNotificationHelper hubNotification)
             {
                 _context = context;
                 _hostEnvironment = hostEnvironment;
                 _mapper = mapper;
                 _elasticClient = elasticClient;
                 _configuration = configuration;
+                _hubNotification = hubNotification;
             }
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
@@ -81,15 +84,21 @@ namespace Application.Aircrafts
                 var subscribers = await _context.Users
                     .Where(x => x.Subscribes.Any(s => s.AircraftId == aircraft.Id))
                     .ToListAsync();
-
+                var body = $"{username} added new photo to {aircraft.AircraftName}";
                 foreach (var subscriber in subscribers)
                 {
                     await _context.Notifications.AddAsync(new Domain.Notification
                     {
                         UserId = subscriber.Id,
                         IsRead = false,
-                        Body = $"{username} added new photo to {aircraft.AircraftName}"
+                        Body = body
                     });
+                }
+                var onlineUsers = _hubNotification.GetOnlineUsers();
+                var usersToSendNotification = onlineUsers.Where(o => subscribers.Any(x => x.UserName == o));
+                foreach (var users in usersToSendNotification)
+                {
+                    //await _hubNotification.SendNotificationParallel(users, body);
                 }
             }
         }

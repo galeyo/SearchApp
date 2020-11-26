@@ -1,6 +1,6 @@
 ﻿using Application.Errors;
 using Application.Extensions;
-using Application.Notifications;
+using Common.Notifications;
 using Common.Interfaces;
 using Domain;
 using FluentValidation;

@@ -29,5 +29,6 @@ namespace SearchApp.Controllers
         {
             return await Mediator.Send(new CurrentUser.Query());
         }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Aircrafts.Dto;
 using Application.Errors;
+using Common.Notifications;
 using AutoMapper;
 using Common.Interfaces;
 using Domain;
@@ -53,14 +54,16 @@ namespace Application.Aircrafts
             private readonly IMapper _mapper;
             private readonly Nest.ElasticClient _elasticClient;
             private readonly IUserAccessor _userAccessor;
+            private readonly IHubNotificationHelper _hubNotification;
 
-            public Handler(DataContext context, IWebHostEnvironment hostEnvironment, IMapper mapper, Nest.ElasticClient elasticClient, IUserAccessor userAccessor)
+            public Handler(DataContext context, IWebHostEnvironment hostEnvironment, IMapper mapper, Nest.ElasticClient elasticClient, IUserAccessor userAccessor, IHubNotificationHelper hubNotification)
             {
                 _context = context;
                 _hostEnvironment = hostEnvironment;
                 _mapper = mapper;
                 _elasticClient = elasticClient;
                 _userAccessor = userAccessor;
+                _hubNotification = hubNotification;
             }
             public async Task<AircraftDto> Handle(Command request, CancellationToken cancellationToken)
             {
@@ -167,15 +170,20 @@ namespace Application.Aircrafts
             private async Task CreateNotification(string username, string aircraftName)
             {
                 var allUsers = await _context.Users.ToListAsync();
+                var body = $"{username} added new aircraft {aircraftName}";
+                var notifications = new List<NotificationDto>();
                 foreach (var user in allUsers)
                 {
-                    await _context.Notifications.AddAsync(new Notification
+                    var dbNotification = await _context.Notifications.AddAsync(new Notification
                     {
                         UserId = user.Id,
                         IsRead = false,
-                        Body = $"{username} added new aircraft {aircraftName}"
+                        Body = body
                     });
+                    var onlineUsers = _hubNotification.GetOnlineUsers();
+
                 }
+                //_hubNotification.SendNotificationToAll(body);
             }
         }
     }

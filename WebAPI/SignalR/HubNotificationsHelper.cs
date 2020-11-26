@@ -1,4 +1,5 @@
-﻿using Common.Interfaces;
+﻿using Common.Notifications;
+using Common.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace SearchApp.SignalR
             return _connection.OnlineUsers;
         }
 
-        public async Task<Task> SendNotificationParallel(string username)
+        public async Task<Task> SendNotificationParallel(string username, NotificationDto message)
         {
             var connections = _connection.GetConnections(username);
 
@@ -37,7 +38,7 @@ namespace SearchApp.SignalR
                         {
                             await _context.Clients
                                 .Clients((IReadOnlyList<string>)connections)
-                                .SendAsync("ReciveNotification");
+                                .SendAsync("ReceiveNotification", message);
                         }
                         catch (Exception)
                         {
@@ -55,9 +56,9 @@ namespace SearchApp.SignalR
             }
         }
 
-        public async void SendNotificationToAll(string message)
+        public async void SendNotificationToAll(NotificationDto message)
         {
-            await _context.Clients.All.SendAsync("common");
+            await _context.Clients.All.SendAsync("ReceiveNotification", message);
         }
     }
 }
