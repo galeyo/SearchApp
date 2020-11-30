@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace SearchApp.SignalR
 {
@@ -14,11 +16,13 @@ namespace SearchApp.SignalR
     {
         private readonly IConnectionManager _manager;
         private readonly IMediator _mediator;
+        private readonly DataContext _dataContext;
 
-        public NotificationHub(IConnectionManager manager, IMediator mediator)
+        public NotificationHub(IConnectionManager manager, IMediator mediator, DataContext dataContext)
         {
             _manager = manager;
             _mediator = mediator;
+            _dataContext = dataContext;
         }
         private string GetUsername()
         {
@@ -31,6 +35,12 @@ namespace SearchApp.SignalR
             _manager.AddConnection(username, Context.ConnectionId);
 
             return Context.ConnectionId;
+        }
+        public async Task ReadNotification(string notificationId)
+        {
+            var aircraft = await _dataContext.Notifications.Where((n) => n.Id == Guid.Parse(notificationId)).FirstOrDefaultAsync();
+            aircraft.IsRead = true;
+            await _dataContext.SaveChangesAsync();
         }
     }
 }
