@@ -72,13 +72,20 @@ namespace Application.User
                             IsRead = notification.IsRead
                         });
                     }
+                    var subscribes = await _context.Subscribes.Where(x => x.UserId == user.Id).ToListAsync();
+                    var subscribesDto = new List<int>();
+                    foreach (var subscribe in subscribes)
+                    {
+                        subscribesDto.Add(subscribe.AircraftId);
+                    }
                     return new UserDto
                     {
                         DisplayName = user.DisplayName,
                         Token = _jwtGenerator.CreateToken(user),
                         UserName = user.UserName,
                         Image = user.Image,
-                        Notifications = notificationsDto
+                        Notifications = notificationsDto,
+                        Subscribes = subscribesDto
                     };
                 }
 

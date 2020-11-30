@@ -171,7 +171,6 @@ namespace Application.Aircrafts
             {
                 var allUsers = await _context.Users.ToListAsync();
                 var body = $"{username} added new aircraft {aircraftName}";
-                var notifications = new List<NotificationDto>();
                 foreach (var user in allUsers)
                 {
                     var dbNotification = await _context.Notifications.AddAsync(new Notification
@@ -181,9 +180,19 @@ namespace Application.Aircrafts
                         Body = body
                     });
                     var onlineUsers = _hubNotification.GetOnlineUsers();
-
+                    foreach (var onlineUser in onlineUsers)
+                    {
+                        if (onlineUser == user.UserName)
+                        {
+                            await _hubNotification.SendNotificationParallel(onlineUser, new NotificationDto
+                            {
+                                Body = dbNotification.Entity.Body,
+                                Id = dbNotification.Entity.Id,
+                                IsRead = dbNotification.Entity.IsRead
+                            });
+                        }
+                    }
                 }
-                //_hubNotification.SendNotificationToAll(body);
             }
         }
     }

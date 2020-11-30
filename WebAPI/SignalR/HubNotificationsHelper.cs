@@ -37,13 +37,13 @@ namespace SearchApp.SignalR
                         try
                         {
                             await _context.Clients
-                                .Clients((IReadOnlyList<string>)connections)
+                                .Clients(new List<string>(connections).AsReadOnly())
                                 .SendAsync("ReceiveNotification", message);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
 
-                            throw new Exception("ERROR: No connections found");
+                            throw ex;
                         }
                     }
                 }

@@ -190,19 +190,27 @@ namespace Application.Aircrafts
                 var body = $"{username} has changed {aircraft.AircraftName}";
                 foreach (var subscriber in subscribers)
                 {
-                    await _context.Notifications.AddAsync(new Domain.Notification
+                    var dbNotification = await _context.Notifications.AddAsync(new Domain.Notification
                     {
                         UserId = subscriber.Id,
                         IsRead = false,
                         Body = body
                     });
+                    var onlineUsers = _hubNotification.GetOnlineUsers();
+                    foreach (var onlineUser in onlineUsers)
+                    {
+                        if (onlineUser == subscriber.UserName)
+                        {
+                            await _hubNotification.SendNotificationParallel(onlineUser, new Common.Notifications.NotificationDto
+                            {
+                                Body = dbNotification.Entity.Body,
+                                Id = dbNotification.Entity.Id,
+                                IsRead = dbNotification.Entity.IsRead
+                            });
+                        }
+                    }
                 }
-                var onlineUsers = _hubNotification.GetOnlineUsers();
-                var usersToSendNotification = onlineUsers.Where(o => subscribers.Any(x => x.UserName == o));
-                foreach (var users in usersToSendNotification)
-                {
-                    //await _hubNotification.SendNotificationParallel(users, body);
-                }
+                
             }
         }
     }

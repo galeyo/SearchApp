@@ -25,7 +25,7 @@ namespace SearchApp.SignalR
             return Context.User?.Claims?
                 .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
         }
-        public async Task<string> GetConnectionId()
+        public  string GetConnectionId()
         {
             var username = GetUsername();
             _manager.AddConnection(username, Context.ConnectionId);

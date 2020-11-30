@@ -103,7 +103,7 @@ namespace SearchApp
                         {
                             var accessToken = context.Request.Query["access_token"];
                             var path = context.HttpContext.Request.Path;
-                            if (!string.IsNullOrWhiteSpace(accessToken) && path.StartsWithSegments("/chat"))
+                            if (!string.IsNullOrWhiteSpace(accessToken) && (path.StartsWithSegments("/chat") || path.StartsWithSegments("/notifications")))
                             {
                                 context.Token = accessToken;
                             }
@@ -118,6 +118,7 @@ namespace SearchApp
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Search API", Version = "v1" });
+                c.CustomSchemaIds(t => t.ToString());
             });
         }
 

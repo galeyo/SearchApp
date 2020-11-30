@@ -36,8 +36,9 @@ namespace Application.Aircrafts
             private readonly Nest.ElasticClient _elasticClient;
             private readonly IConfiguration _configuration;
             private readonly IHubNotificationHelper _hubNotification;
+            private readonly IUserAccessor _userAccessor;
 
-            public Handler(DataContext context, IWebHostEnvironment hostEnvironment, IMapper mapper, Nest.ElasticClient elasticClient, IConfiguration configuration, IHubNotificationHelper hubNotification)
+            public Handler(DataContext context, IWebHostEnvironment hostEnvironment, IMapper mapper, Nest.ElasticClient elasticClient, IConfiguration configuration, IHubNotificationHelper hubNotification, IUserAccessor userAccessor)
             {
                 _context = context;
                 _hostEnvironment = hostEnvironment;
@@ -45,10 +46,12 @@ namespace Application.Aircrafts
                 _elasticClient = elasticClient;
                 _configuration = configuration;
                 _hubNotification = hubNotification;
+                _userAccessor = userAccessor;
             }
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (!await _context.Aircraft.Where(x => x.Id == request.AircraftId).AnyAsync())
+                var aircraft = await _context.Aircraft.Where(x => x.Id == request.AircraftId).ToListAsync();
+                if (aircraft == null)
                     throw new RestException(HttpStatusCode.NotFound, new { AircraftId = "Aircraft not found" });
                 string uploads = Path.Combine(_hostEnvironment.WebRootPath, "api", "uploads");
                 string filePath = Path.Combine(uploads, request.File.FileName);
@@ -62,7 +65,7 @@ namespace Application.Aircrafts
                     ImageUrl = "uploads/" + request.File.FileName
                 };
                 await _context.Images.AddAsync(image);
-
+                await CreateNotification(_userAccessor.GetCurrentUsername(), aircraft[0]);
                 var success = await _context.SaveChangesAsync() > 0;
 
                 if (success)
@@ -87,19 +90,26 @@ namespace Application.Aircrafts
                 var body = $"{username} added new photo to {aircraft.AircraftName}";
                 foreach (var subscriber in subscribers)
                 {
-                    await _context.Notifications.AddAsync(new Domain.Notification
+                    var dbNotification = await _context.Notifications.AddAsync(new Domain.Notification
                     {
                         UserId = subscriber.Id,
                         IsRead = false,
                         Body = body
                     });
-                }
-                var onlineUsers = _hubNotification.GetOnlineUsers();
-                var usersToSendNotification = onlineUsers.Where(o => subscribers.Any(x => x.UserName == o));
-                foreach (var users in usersToSendNotification)
-                {
-                    //await _hubNotification.SendNotificationParallel(users, body);
-                }
+                    var onlineUsers = _hubNotification.GetOnlineUsers();
+                    foreach (var onlineUser in onlineUsers)
+                    {
+                        if (onlineUser == subscriber.UserName)
+                        {
+                            await _hubNotification.SendNotificationParallel(onlineUser, new Common.Notifications.NotificationDto
+                            {
+                                Body = dbNotification.Entity.Body,
+                                Id = dbNotification.Entity.Id,
+                                IsRead = dbNotification.Entity.IsRead
+                            });
+                        }
+                    }
+                }     
             }
         }
     }

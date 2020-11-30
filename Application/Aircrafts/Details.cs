@@ -38,7 +38,6 @@ namespace Application.Aircrafts
                     .FindAsync(new object[] { request.Id }, cancellationToken);
                 if (aircraft == null)
                     throw new RestException(HttpStatusCode.NotFound, new { aircraft = "Not found" });
-                var comments = aircraft.Comments.ToList();
                 return _mapper.Map<Aircraft, AircraftDto>(aircraft);
             }
         }
