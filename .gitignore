@@ -343,3 +343,4 @@ healthchecksdb
 /client-app
 /WebAPI/wwwroot/api/uploads
 /WebAPI/AppSearch.db
+/WebAPI/wwwroot/build
